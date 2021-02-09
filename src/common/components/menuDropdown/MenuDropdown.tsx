@@ -20,6 +20,7 @@ export type MenuDropdownProps = React.PropsWithChildren<{
   buttonAriaLabel?: string;
   buttonLabel: string;
   className?: string;
+  closeOnItemClick?: boolean;
   id?: string;
   items: MenuItemOptionProps[];
 }>;
@@ -29,6 +30,7 @@ const MenuDropdown = ({
   buttonAriaLabel,
   buttonLabel,
   className,
+  closeOnItemClick,
   id: _id,
   items,
 }: MenuDropdownProps) => {
@@ -38,6 +40,7 @@ const MenuDropdown = ({
     scroll: false,
     polyfill: ResizeObserver,
   });
+  const toggleButton = useRef<HTMLButtonElement>(null);
   const disabledIndices = React.useMemo(
     () =>
       items.reduce(
@@ -76,14 +79,14 @@ const MenuDropdown = ({
           break;
         case 'Escape':
           ensureMenuIsClosed();
-          // setFocusToButton();
+          setFocusToButton();
           break;
         case 'Enter':
           const item = items[focusedIndex];
           /* istanbul ignore else */
           if (menuOpen && item) {
             item.onClick();
-            // setFocusToButton();
+            handleItemClick();
             event.preventDefault();
           }
           break;
@@ -108,11 +111,22 @@ const MenuDropdown = ({
     }
   };
 
+  const setFocusToButton = () => {
+    toggleButton.current?.focus();
+  };
+
   const onDocumentClick = (event: MouseEvent) => {
     const target = event.target;
 
     if (!(target instanceof Node && containerRef.current?.contains(target))) {
       ensureMenuIsClosed();
+    }
+  };
+
+  const handleItemClick = () => {
+    if (closeOnItemClick) {
+      ensureMenuIsClosed();
+      setFocusToButton();
     }
   };
 
@@ -146,10 +160,11 @@ const MenuDropdown = ({
       type: 'button',
     };
     return button ? (
-      React.cloneElement(button, { ...commonProps })
+      React.cloneElement(button, { ...commonProps, ref: toggleButton })
     ) : (
       <Button
         {...commonProps}
+        ref={toggleButton}
         fullWidth={true}
         iconRight={
           menuOpen ? <IconAngleUp aria-hidden /> : <IconAngleDown aria-hidden />
@@ -182,6 +197,7 @@ const MenuDropdown = ({
         focusedIndex={focusedIndex}
         id={menuId}
         items={items}
+        onItemClick={handleItemClick}
         menuContainerSize={menuContainerSize}
         menuOpen={menuOpen}
         setFocusedIndex={setFocusedIndex}

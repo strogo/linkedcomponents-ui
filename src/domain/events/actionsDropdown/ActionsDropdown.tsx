@@ -138,9 +138,10 @@ const ActionsDropdown: React.FC<ActionsDropdownProps> = ({
             <IconMenuDots aria-hidden={true} />
           </button>
         }
-        className={className}
-        items={actionItems}
         buttonLabel={t('event.form.buttonActions')}
+        className={className}
+        closeOnItemClick={true}
+        items={actionItems}
       />
     </>
   );

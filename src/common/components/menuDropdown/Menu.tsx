@@ -18,6 +18,7 @@ type MenuProps = React.ComponentPropsWithoutRef<'div'> & {
   items: MenuItemOptionProps[];
   menuContainerSize: RectReadOnly;
   menuOpen: boolean;
+  onItemClick?: (event?: React.MouseEvent<HTMLElement>) => void;
   setFocusedIndex: (index: number) => void;
 };
 
@@ -28,6 +29,7 @@ export const Menu = ({
   items,
   menuContainerSize,
   menuOpen,
+  onItemClick,
   setFocusedIndex,
   ...rest
 }: MenuProps) => {
@@ -36,7 +38,7 @@ export const Menu = ({
   React.useEffect(() => {
     const { width = 0 } = menuContainerSize;
     // the menu width should be at least 190px
-    const minWidth = MENU_MIN_WIDTH >= width ? MENU_MIN_WIDTH : width;
+    const minWidth = width <= MENU_MIN_WIDTH ? MENU_MIN_WIDTH : width;
     setMenuStyles({ minWidth });
   }, [menuContainerSize]);
   return (
@@ -50,6 +52,15 @@ export const Menu = ({
       {...rest}
     >
       {items.map(({ disabled, icon, label, onClick, title }, index) => {
+        const handleClick = (event?: React.MouseEvent<HTMLElement>) => {
+          event?.preventDefault();
+          onClick(event);
+
+          /* istanbul ignore else */
+          if (typeof onItemClick === 'function') {
+            onItemClick(event);
+          }
+        };
         return (
           <MenuItem
             key={index}
@@ -58,7 +69,7 @@ export const Menu = ({
             index={index}
             isFocused={focusedIndex === index}
             label={label}
-            onClick={onClick}
+            onClick={handleClick}
             setFocusedIndex={setFocusedIndex}
             title={title}
           />
