@@ -36,7 +36,7 @@ export const Menu = ({
   const [menuStyles, setMenuStyles] = React.useState<MenuStyles>({});
 
   React.useEffect(() => {
-    const { width = 0 } = menuContainerSize;
+    const { width } = menuContainerSize;
     // the menu width should be at least 190px
     const minWidth = width <= MENU_MIN_WIDTH ? MENU_MIN_WIDTH : width;
     setMenuStyles({ minWidth });
